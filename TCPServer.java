@@ -25,7 +25,9 @@ public class TCPServer extends Application {
    
    // GUI Components
    public TextArea taLog = new TextArea();
+   private Button btnFormat = new Button("PDF Download");
    
+
    // Socket stuff
    private ServerSocket sSocket = null;
    public static final int SERVER_PORT = 32001;
@@ -44,7 +46,7 @@ public class TCPServer extends Application {
    public void start(Stage _stage) {
       // Window setup
       stage = _stage;
-      stage.setTitle("TCPServer");
+      stage.setTitle("Electronic Medical Records");
       stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
          public void handle(WindowEvent evt) { System.exit(0); }
       });
@@ -56,11 +58,12 @@ public class TCPServer extends Application {
       fpBot.setAlignment(Pos.CENTER);
       taLog.setPrefRowCount(10);
       taLog.setPrefColumnCount(35);
-      fpBot.getChildren().addAll(new Label("Log:"), taLog);
+      fpBot.getChildren().addAll(new Label("Patients"), taLog);
       root.getChildren().add(fpBot);
+      root.getChildren().add(btnFormat);
       
       // Show window
-      scene = new Scene(root, 500, 200);
+      scene = new Scene(root, 500, 400);
       stage.setScene(scene);
       stage.show();      
       
