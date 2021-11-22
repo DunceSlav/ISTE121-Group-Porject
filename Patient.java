@@ -13,7 +13,6 @@ public class Patient
    private char reason;
    private double cost;
    private boolean insurance;
-   // add insurance attribute later later
    
    
    // Constructor
