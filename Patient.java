@@ -1,6 +1,9 @@
-public class Patient 
+import java.io.Serializable;
+public class Patient implements Serializable
 {
    // attributes
+   private static final long serialVersionUID = 01L;
+   
    private String firstName;
    private String lastName;
    
@@ -10,13 +13,14 @@ public class Patient
    private double height;
    private double weight;
    
-   private char reason;
+   private String reason;
    private double cost;
    private boolean insurance;
+   // add insurance attribute later later
    
    
    // Constructor
-   public Patient(String f, String l, String d, int a, double h, double w, char r, double c)
+   public Patient(String f, String l, String d, int a, double h, double w, String r, double c)
    {
       firstName = f;
       lastName = l;
@@ -60,7 +64,7 @@ public class Patient
       return weight;
    }
    
-   public char getReason()
+   public String getReason()
    {
       return reason;
    }  
@@ -102,7 +106,7 @@ public class Patient
       weight = x;
    }
    
-   public void setReason(char x)
+   public void setReason(String x)
    {
       reason = x;
    }   
