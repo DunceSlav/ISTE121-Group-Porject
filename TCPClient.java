@@ -58,6 +58,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    private Label lblWeight = new Label("Weight:");
    private TextField tfWeight = new TextField();
    
+   
    //reason for stay
    private Label lblReason = new Label("Reason for stay:");
    private RadioButton reason1 = new RadioButton("Reason 1");
@@ -79,6 +80,9 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    // networking attributes
    public static final int SERVER_PORT = 32001;
    private Socket socket = null;
+   
+   // cost attributes
+   private double total;
     
    /**
     * main program 
@@ -93,9 +97,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    public void start(Stage _stage) {
       stage = _stage;
       stage.setTitle("TCP Client");
-      stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-         public void handle(WindowEvent evt) { System.exit(0); }
-      });
+      stage.setOnCloseRequest(
+         new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent evt) { System.exit(0); }
+         });
       stage.setResizable(false);
       root = new VBox(8);
       
@@ -103,7 +108,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       FlowPane fpTop = new FlowPane(8,8);
       fpTop.setAlignment(Pos.CENTER);
       fpTop.getChildren().addAll(new Label("Server Name or IP: "),
-         tfServerIP, btnConnect);
+         tfServerIP, btnConnect,btnSend);
       root.getChildren().add(fpTop);
       
       // BOTTOM - Label + text area
@@ -146,11 +151,12 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       
       // Listen for the button
       btnConnect.setOnAction(this);
-
+      btnSend.setOnAction(this);
+   
       // Show window
-      scene = new Scene(root, 700, 650);
+      scene = new Scene(root, 650, 700);
       stage.setScene(scene);
-      stage.show();      
+      stage.show();    
    }
    
    /**
@@ -164,6 +170,9 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
             break;
          case "Disconnect":
             doDisconnect();
+            break;
+         case "Send Patient Info":
+            sendPatient();
             break;
       }
    }
@@ -197,4 +206,97 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       taLog.appendText("Disconnected!\n");
       btnConnect.setText("Connect");
    }
+   
+   // NOT WORKING //
+   private void sendPatient()
+   {   
+
+      String dob = tfDOBmonth.getText() + "/" + tfDOBday.getText() + "/" + tfDOByear.getText();
+      Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
+         Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfHeight.getText()), "filler reason", total);
+         
+         // use calcCosts to set the new Patients total bill cost
+         p.setCost(calcCosts());
+         
+      try 
+      {
+         
+         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());        
+      
+         ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());        
+                 
+         outputStream.writeObject(p);
+         socket.close();
+      
+      }
+      catch(IOException ioe) {
+         taLog.appendText("IO Exception: " + ioe + "\n");
+         
+      }
+      
+      // Confirm send, reset the total for next time
+      taLog.appendText("\nPatient data sent: " + p.getFirstName());
+      total = 0.0;
+   }
+   
+   // TO DO: start making the reasons and costs for them
+   
+   public double calcCosts()
+   {
+      if(reason1.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason2.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason3.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason4.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason5.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason6.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason7.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason8.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason9.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      if(reason10.isSelected())
+      {
+         total += 20000.0;
+      }
+      
+      return total;
+      
+  
+   }
+    
+
 }
