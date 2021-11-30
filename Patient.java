@@ -118,7 +118,7 @@ public class Patient implements Serializable
    
    public void setInsurance(boolean x)
    {
-      insurance = x;
+      insurance = x; 
    }
 
 
