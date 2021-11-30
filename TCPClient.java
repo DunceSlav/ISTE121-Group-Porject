@@ -93,9 +93,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    public void start(Stage _stage) {
       stage = _stage;
       stage.setTitle("TCP Client");
-      stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-         public void handle(WindowEvent evt) { System.exit(0); }
-      });
+      stage.setOnCloseRequest(
+         new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent evt) { System.exit(0); }
+         });
       stage.setResizable(false);
       root = new VBox(8);
       
@@ -103,7 +104,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       FlowPane fpTop = new FlowPane(8,8);
       fpTop.setAlignment(Pos.CENTER);
       fpTop.getChildren().addAll(new Label("Server Name or IP: "),
-         tfServerIP, btnConnect);
+         tfServerIP, btnConnect,btnSend);
       root.getChildren().add(fpTop);
       
       // BOTTOM - Label + text area
@@ -146,9 +147,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       
       // Listen for the button
       btnConnect.setOnAction(this);
-
+      btnSend.setOnAction(this);
+   
       // Show window
-      scene = new Scene(root, 700, 650);
+      scene = new Scene(root, 650, 700);
       stage.setScene(scene);
       stage.show();      
    }
@@ -164,6 +166,9 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
             break;
          case "Disconnect":
             doDisconnect();
+            break;
+         case "Send Patient Info":
+            sendPatient();
             break;
       }
    }
@@ -197,4 +202,44 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       taLog.appendText("Disconnected!\n");
       btnConnect.setText("Connect");
    }
+   
+   // NOT WORKING //
+   private void sendPatient()
+   {
+            System.out.println("test 0");
+
+      String dob = tfDOBmonth.getText() + "/" + tfDOBday.getText() + "/" + tfDOByear.getText();
+     
+      Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
+         Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfHeight.getText()), 'a', 20000.0);
+         
+            System.out.println("test 1");
+
+      try 
+      {
+         socket = new Socket(tfServerIP.getText(), SERVER_PORT);
+         
+         OutputStream outputStream = socket.getOutputStream();
+         
+         ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
+         
+         ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+         
+         objectOutputStream.writeObject(p);
+         socket.close();
+      
+      }
+      catch(IOException ioe) {
+         taLog.appendText("IO Exception: " + ioe + "\n");
+         
+      }
+      
+      
+      System.out.println("test 2");
+   
+   
+    
+      taLog.appendText("\nPatient data sent." + p.getFirstName());
+   }
+
 }
