@@ -47,9 +47,10 @@ public class TCPServer extends Application {
       // Window setup
       stage = _stage;
       stage.setTitle("Electronic Medical Records");
-      stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-         public void handle(WindowEvent evt) { System.exit(0); }
-      });
+      stage.setOnCloseRequest(
+         new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent evt) { System.exit(0); }
+         });
       stage.setResizable(false);
       root = new VBox(8);
    
@@ -68,9 +69,10 @@ public class TCPServer extends Application {
       stage.show();      
       
       // Do server work in a thread
-      Thread t = new Thread() {
-         public void run() { doServerWork(); }
-      };
+      Thread t = 
+         new Thread() {
+            public void run() { doServerWork(); }
+         };
       t.start();
    }
    
@@ -87,7 +89,7 @@ public class TCPServer extends Application {
          taLog.appendText("IO Exception (1): " + ioe);
          return;
       }
-
+   
       // Socket for communication with client      
       Socket cSocket = null;
       try {
@@ -101,5 +103,28 @@ public class TCPServer extends Application {
       
       // No real processing yet
       taLog.appendText("Client connected!\n");
+      
+      
+      try
+      {
+         OutputStream outputStream = cSocket.getOutputStream();
+         ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+
+         InputStream inputStream = cSocket.getInputStream();
+         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+         Patient newPatient = (Patient)objectInputStream.readObject();     
+         
+         if(newPatient instanceof Patient)
+         {
+            taLog.appendText("Info received: " + newPatient.getFirstName());
+         }
+
+        
+      }
+      
+      catch(Exception e)
+      {
+      
+      }
    }   
 }
