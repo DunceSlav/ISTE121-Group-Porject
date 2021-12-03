@@ -66,7 +66,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    
    //reason for stay
    private Label lblReason = new Label("Reason for stay:");
-   private RadioButton reason1 = new RadioButton("Reason 1");
+   private RadioButton reason1 = new RadioButton("Sprained Ankle");
    private RadioButton reason2 = new RadioButton("Reason 2");
    private RadioButton reason3 = new RadioButton("Reason 3");
    private RadioButton reason4 = new RadioButton("Reason 4");
@@ -223,26 +223,34 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    
 
    private void sendPatient()
-   {      
+   {    
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.setContentText("Are you sure you want to send all the patient info?\nYou will not be able to send anymore patient info.");
+   
+      Optional<ButtonType> result = alert.showAndWait();
+      ButtonType button = result.orElse(ButtonType.CANCEL);
+   
+      if (button == ButtonType.OK) {  
           
-      try 
-      {
-         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());        
-      
-         ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());        
-      
-         outputStream.writeObject(list);
-         taLog.appendText("\nPatient data sent.");
-         outputStream.flush();
-      
-         socket.close();
-      
-      }
-      catch(IOException ioe) {
-         taLog.appendText("IO Exception: " + ioe + "\n");
+         try 
+         {
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());        
          
-      }
-      
+            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());        
+         
+            outputStream.writeObject(list);
+            taLog.appendText("\nPatient data sent.");
+            outputStream.flush();
+         
+            socket.close();
+         
+         }
+         catch(IOException ioe) {
+            taLog.appendText("IO Exception: " + ioe + "\n");
+         
+         }
+         btnSend.setDisable(true);
+      } else {}
    }
    
    public void addPatient()
@@ -262,19 +270,39 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          p.setInsurance(true);
       }
       
-      list.add(p);
-      
-      tfFname.setText("");
-      tfLname.setText("");
-      tfAge.setText("");
-      tfDOBmonth.setText("");
-      tfDOBday.setText("");
-      tfDOByear.setText("");
-      tfHeight.setText("");
-      tfWeight.setText("");
-      tfDays.setText("");
-      total = 0.0;
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.setContentText("Are you sure you want to add this patient?");
    
+      Optional<ButtonType> result = alert.showAndWait();
+      ButtonType button = result.orElse(ButtonType.CANCEL);
+   
+      if (button == ButtonType.OK) {
+      
+         list.add(p);
+      
+         tfFname.setText("");
+         tfLname.setText("");
+         tfAge.setText("");
+         tfDOBmonth.setText("");
+         tfDOBday.setText("");
+         tfDOByear.setText("");
+         tfHeight.setText("");
+         tfWeight.setText("");
+         tfDays.setText("");
+         total = 0.0;
+         reason1.setSelected(false);
+         reason2.setSelected(false);
+         reason3.setSelected(false);
+         reason4.setSelected(false);
+         reason5.setSelected(false);
+         reason6.setSelected(false);
+         reason7.setSelected(false);
+         reason8.setSelected(false);
+         reason9.setSelected(false);
+         reason10.setSelected(false);
+         radioY.setSelected(false);
+         radioN.setSelected(false);
+      } else {}
    }
    
    
@@ -350,7 +378,8 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          total += 1500.0;
          reason = "Stitches";
       }
-   
+      double dayscost = Integer.parseInt(tfDays.getText()) * 2500;
+      total += dayscost;
       return total;
    
    }
