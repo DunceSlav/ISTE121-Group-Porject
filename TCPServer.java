@@ -7,7 +7,7 @@ import javafx.scene.text.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.geometry.*;
-
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
@@ -17,7 +17,8 @@ import java.io.*;
  * @version 2205
  */
 
-public class TCPServer extends Application {
+public class TCPServer extends Application implements EventHandler<ActionEvent> 
+{
    // Window attributes
    private Stage stage;
    private Scene scene;
@@ -25,12 +26,15 @@ public class TCPServer extends Application {
    
    // GUI Components
    public TextArea taLog = new TextArea();
-   private Button btnFormat = new Button("PDF Download");
+   private Button btnFormat = new Button("Format");
    
 
    // Socket stuff
    private ServerSocket sSocket = null;
    public static final int SERVER_PORT = 32001;
+   
+   private ArrayList<Patient> newList = new ArrayList<Patient>();
+
    
    /**
     * main program
@@ -63,6 +67,8 @@ public class TCPServer extends Application {
       root.getChildren().add(fpBot);
       root.getChildren().add(btnFormat);
       
+      btnFormat.setOnAction(this);
+      
       // Show window
       scene = new Scene(root, 500, 400);
       stage.setScene(scene);
@@ -75,6 +81,17 @@ public class TCPServer extends Application {
          };
       t.start();
    }
+   
+   public void handle(ActionEvent ae) {
+      String label = ((Button)ae.getSource()).getText();
+      switch(label) {
+ 
+         case "Format":
+            doFormat();
+            break;
+      }
+   }
+
    
    /** 
     * doServerWork
@@ -109,16 +126,19 @@ public class TCPServer extends Application {
       {
          OutputStream outputStream = cSocket.getOutputStream();
          ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-
+      
          InputStream inputStream = cSocket.getInputStream();
          ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-         Patient newPatient = (Patient)objectInputStream.readObject();     
+         ArrayList<Patient> newList = (ArrayList<Patient>)objectInputStream.readObject();     
+      
+         taLog.appendText("Info received!\n");
          
-         if(newPatient instanceof Patient)
-         {
-            taLog.appendText("Info received: " + newPatient.toString());
+         for(Patient p: newList)
+         {       
+            taLog.appendText("Patient Received: " + p.getLastName() + ", " + p.getFirstName());
          }
-
+      
+      
         
       }
       
@@ -126,5 +146,12 @@ public class TCPServer extends Application {
       {
       
       }
-   }   
+   }  
+   
+   public void doFormat()
+   {
+      
+   
+   
+   } 
 }
