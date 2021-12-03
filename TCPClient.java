@@ -57,6 +57,11 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    //weight
    private Label lblWeight = new Label("Weight:");
    private TextField tfWeight = new TextField();
+   //days stayed
+   private Label lblDays = new Label("Days Stayed:");
+   private TextField tfDays = new TextField();
+
+   
    
    //reason for stay
    private Label lblReason = new Label("Reason for stay:");
@@ -79,6 +84,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    // networking attributes
    public static final int SERVER_PORT = 32001;
    private Socket socket = null;
+   
+   // cost attributes
+   private double total;
+   private String reason;
     
    /**
     * main program 
@@ -93,9 +102,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    public void start(Stage _stage) {
       stage = _stage;
       stage.setTitle("TCP Client");
-      stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-         public void handle(WindowEvent evt) { System.exit(0); }
-      });
+      stage.setOnCloseRequest(
+         new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent evt) { System.exit(0); }
+         });
       stage.setResizable(false);
       root = new VBox(8);
       
@@ -103,7 +113,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       FlowPane fpTop = new FlowPane(8,8);
       fpTop.setAlignment(Pos.CENTER);
       fpTop.getChildren().addAll(new Label("Server Name or IP: "),
-         tfServerIP, btnConnect);
+         tfServerIP, btnConnect,btnSend);
       root.getChildren().add(fpTop);
       
       // BOTTOM - Label + text area
@@ -130,7 +140,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       infoSection.addRow(3,dobBox);
       //patient height and weight
       HBox hwBox = new HBox(8);
-      hwBox.getChildren().addAll(lblHeight, tfHeight, lblWeight, tfWeight);
+      hwBox.getChildren().addAll(lblHeight, tfHeight, lblWeight, tfWeight, lblDays, tfDays);
       infoSection.addRow(4, hwBox);
       //patient reason for stay
       VBox reasonBox = new VBox(8);
@@ -146,11 +156,12 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       
       // Listen for the button
       btnConnect.setOnAction(this);
-
+      btnSend.setOnAction(this);
+   
       // Show window
-      scene = new Scene(root, 700, 650);
+      scene = new Scene(root, 650, 700);
       stage.setScene(scene);
-      stage.show();      
+      stage.show();    
    }
    
    /**
@@ -164,6 +175,9 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
             break;
          case "Disconnect":
             doDisconnect();
+            break;
+         case "Send Patient Info":
+            sendPatient();
             break;
       }
    }
@@ -197,4 +211,126 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       taLog.appendText("Disconnected!\n");
       btnConnect.setText("Connect");
    }
+   
+   // NOT WORKING //
+   private void sendPatient()
+   {   
+      //Patient testMan = new Patient("Test", "Testingson", "0/0/0000", 40, 5.5, 160.0, "testing the System", 5, 60.0, false);      
+      
+      
+      int days = Integer.parseInt(tfDays.getText());
+      String dob = tfDOBmonth.getText() + "/" + tfDOBday.getText() + "/" + tfDOByear.getText();
+      Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
+         Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfWeight.getText()), reason, days, total, false);
+         
+         // use calcCosts to set the new Patients total bill cost
+      p.setCost(calcCosts());
+      p.setReason(reason);
+      if(radioY.isSelected())
+      {
+         total = 0.0;
+         p.setInsurance(true);
+      }
+         
+         
+      try 
+      {
+         
+         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());        
+      
+         ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());        
+                 
+         outputStream.writeObject(p);
+         socket.close();
+      
+      }
+      catch(IOException ioe) {
+         taLog.appendText("IO Exception: " + ioe + "\n");
+         
+      }
+      
+      // Confirm send, reset the total for next time
+      taLog.appendText("\nPatient data sent: " + p.toString());
+      total = 0.0;
+   }
+   
+   // TO DO: start making the reasons and costs for them
+   
+   public double calcCosts()
+   {
+      // Ankle Sprain
+      if(reason1.isSelected())
+      {
+         total += 500.0;
+         reason = "Sprained Ankle";
+      }
+      
+      // Broken Leg
+      if(reason2.isSelected())
+      {
+         total += 2500.0;
+         reason = "Broken Leg";
+      
+      }
+      
+      // Broken Arm
+      if(reason3.isSelected())
+      {
+         total += 2500.0;
+         reason = "Broken Arm";
+      }
+      
+      // Hip Fracture
+      if(reason4.isSelected())
+      {
+         total += 25000.0;
+         reason = "Fractured Hip";
+      }
+      
+      // Blood Test
+      if(reason5.isSelected())
+      {
+         total += 1500.0;
+         reason = "Blood Test";
+      }
+      
+      // X-Ray
+      if(reason6.isSelected())
+      {
+         total += 300.0;
+         reason = "X-Ray";
+      }
+      
+      // CT-Scan
+      if(reason7.isSelected())
+      {
+         total += 500.0;
+         reason = "CT-Scan";
+      }
+      
+      // Brain Surgery
+      if(reason8.isSelected())
+      {
+         total += 100000.0;
+         reason = "Brain Surgery";
+      }
+      
+      // Back Surgery
+      if(reason9.isSelected())
+      {
+         total += 70000.0;
+         reason = "Back Surgery";
+      }
+      
+      // Stitches
+      if(reason10.isSelected())
+      {
+         total += 1500.0;
+         reason = "Stitches";
+      }
+
+      return total;
+
+   }
+
 }
