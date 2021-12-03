@@ -14,13 +14,13 @@ public class Patient implements Serializable
    private double weight;
    
    private String reason;
-   private double cost;
+   private int daysStayed;
    private boolean insurance;
-   // add insurance attribute later later
+   private double cost;
    
    
    // Constructor
-   public Patient(String f, String l, String d, int a, double h, double w, String r, double c)
+   public Patient(String f, String l, String d, int a, double h, double w, String r, int ds, double c, boolean i)
    {
       firstName = f;
       lastName = l;
@@ -30,6 +30,8 @@ public class Patient implements Serializable
       weight = w;
       reason = r;
       cost = c;
+      daysStayed = ds;
+      insurance = i;
    }
    
    
@@ -73,6 +75,17 @@ public class Patient implements Serializable
    {
       return cost;
    }
+   
+   public int getDays()
+   {
+      return daysStayed;
+   } 
+   
+   public boolean getInsurance()
+   {
+      return insurance;
+   }
+
    
    
    // Mutators
@@ -120,6 +133,21 @@ public class Patient implements Serializable
    {
       insurance = x;
    }
+   
+   public void setDays(int x)
+   {
+      daysStayed = x;
+   }
+   
+   
+   
+   // toString
+   public String toString() 
+   {
+      return (lastName + ", " + firstName + "   " + dateOfBirth + "   " + reason + "   " + cost);
+   }
+
+
 
 
 
