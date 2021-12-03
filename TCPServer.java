@@ -33,7 +33,11 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
    private ServerSocket sSocket = null;
    public static final int SERVER_PORT = 32001;
    
+   //takes input from client and inputs it into an array list
    private ArrayList<Patient> newList = new ArrayList<Patient>();
+   
+   //tree for organizing the patients by last name 
+   private TreeMap<String, Patient> tree_map = new TreeMap<String, Patient>();
 
    
    /**
@@ -135,10 +139,9 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
          
          for(Patient p: newList)
          {       
+            tree_map.put(p.getLastName(), p);
             taLog.appendText("Patient Received: " + p.getLastName() + ", " + p.getFirstName());
-         }
-      
-      
+         }    
         
       }
       
