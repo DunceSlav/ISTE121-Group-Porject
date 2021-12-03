@@ -7,7 +7,7 @@ import javafx.scene.text.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.geometry.*;
-
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
@@ -30,6 +30,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    
    //send button
    private Button btnSend = new Button("Send Patient Info");
+   private Button btnAdd = new Button("Add Patient");
    
    // Components - BOTTOM
    private Label lblLog = new Label("Log:");
@@ -85,6 +86,9 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    public static final int SERVER_PORT = 32001;
    private Socket socket = null;
    
+   // arraylist for patients
+   private ArrayList<Patient> list = new ArrayList<Patient>();
+   
    // cost attributes
    private double total;
    private String reason;
@@ -113,7 +117,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       FlowPane fpTop = new FlowPane(8,8);
       fpTop.setAlignment(Pos.CENTER);
       fpTop.getChildren().addAll(new Label("Server Name or IP: "),
-         tfServerIP, btnConnect,btnSend);
+         tfServerIP, btnConnect,btnAdd,btnSend);
       root.getChildren().add(fpTop);
       
       // BOTTOM - Label + text area
@@ -157,6 +161,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       // Listen for the button
       btnConnect.setOnAction(this);
       btnSend.setOnAction(this);
+      btnAdd.setOnAction(this);
    
       // Show window
       scene = new Scene(root, 650, 700);
@@ -179,6 +184,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          case "Send Patient Info":
             sendPatient();
             break;
+         case "Add Patient":
+            addPatient();
+            break;
+      
       }
    }
    
@@ -212,35 +221,20 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       btnConnect.setText("Connect");
    }
    
-   // NOT WORKING //
+
    private void sendPatient()
-   {   
-      //Patient testMan = new Patient("Test", "Testingson", "0/0/0000", 40, 5.5, 160.0, "testing the System", 5, 60.0, false);      
-      
-      
-      int days = Integer.parseInt(tfDays.getText());
-      String dob = tfDOBmonth.getText() + "/" + tfDOBday.getText() + "/" + tfDOByear.getText();
-      Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
-         Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfWeight.getText()), reason, days, total, false);
-         
-         // use calcCosts to set the new Patients total bill cost
-      p.setCost(calcCosts());
-      p.setReason(reason);
-      if(radioY.isSelected())
-      {
-         total = 0.0;
-         p.setInsurance(true);
-      }
-         
-         
+   {      
+          
       try 
       {
-         
          ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());        
       
          ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());        
-                 
-         outputStream.writeObject(p);
+      
+         outputStream.writeObject(list);
+         taLog.appendText("\nPatient data sent.");
+         outputStream.flush();
+      
          socket.close();
       
       }
@@ -249,12 +243,40 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          
       }
       
-      // Confirm send, reset the total for next time
-      taLog.appendText("\nPatient data sent: " + p.toString());
-      total = 0.0;
    }
    
-   // TO DO: start making the reasons and costs for them
+   public void addPatient()
+   {
+      // attribute formatting
+      int days = Integer.parseInt(tfDays.getText());
+      String dob = tfDOBmonth.getText() + "/" + tfDOBday.getText() + "/" + tfDOByear.getText();
+      
+      Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
+         Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfWeight.getText()), reason, days, total, false);
+   
+      p.setCost(calcCosts());
+      p.setReason(reason);
+      if(radioY.isSelected())
+      {
+         total = 0.0;
+         p.setInsurance(true);
+      }
+      
+      list.add(p);
+      
+      tfFname.setText("");
+      tfLname.setText("");
+      tfAge.setText("");
+      tfDOBmonth.setText("");
+      tfDOBday.setText("");
+      tfDOByear.setText("");
+      tfHeight.setText("");
+      tfWeight.setText("");
+      tfDays.setText("");
+      total = 0.0;
+   
+   }
+   
    
    public double calcCosts()
    {
@@ -328,9 +350,9 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          total += 1500.0;
          reason = "Stitches";
       }
-
+   
       return total;
-
+   
    }
 
 }
