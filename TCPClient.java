@@ -67,15 +67,15 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    //reason for stay
    private Label lblReason = new Label("Reason for stay:");
    private RadioButton reason1 = new RadioButton("Sprained Ankle");
-   private RadioButton reason2 = new RadioButton("Broken Leg");
-   private RadioButton reason3 = new RadioButton("Broken Arm");
-   private RadioButton reason4 = new RadioButton("Fractured Hip");
-   private RadioButton reason5 = new RadioButton("Blood Test");
-   private RadioButton reason6 = new RadioButton("X-Ray");
-   private RadioButton reason7 = new RadioButton("CT Scan");
-   private RadioButton reason8 = new RadioButton("Brain Surgery");
-   private RadioButton reason9 = new RadioButton("Back Surgery");
-   private RadioButton reason10 = new RadioButton("Stitches");
+   private RadioButton reason2 = new RadioButton("Reason 2");
+   private RadioButton reason3 = new RadioButton("Reason 3");
+   private RadioButton reason4 = new RadioButton("Reason 4");
+   private RadioButton reason5 = new RadioButton("Reason 5");
+   private RadioButton reason6 = new RadioButton("Reason 6");
+   private RadioButton reason7 = new RadioButton("Reason 7");
+   private RadioButton reason8 = new RadioButton("Reason 8");
+   private RadioButton reason9 = new RadioButton("Reason 9");
+   private RadioButton reason10 = new RadioButton("Reason 10");
    
    //insurance y/n?
    private Label lblInsurance = new Label("Does patient have insurance?");
@@ -224,7 +224,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
 
    private void sendPatient()
    {    
-      Alert alert = new Alert(AlertType.CONFIRMATION);
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
       alert.setContentText("Are you sure you want to send all the patient info?\nYou will not be able to send anymore patient info.");
    
       Optional<ButtonType> result = alert.showAndWait();
@@ -270,7 +270,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          p.setInsurance(true);
       }
       
-      Alert alert = new Alert(AlertType.CONFIRMATION);
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
       alert.setContentText("Are you sure you want to add this patient?");
    
       Optional<ButtonType> result = alert.showAndWait();
