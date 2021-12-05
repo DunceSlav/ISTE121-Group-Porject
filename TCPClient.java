@@ -7,15 +7,14 @@ import javafx.scene.text.*;
 import javafx.scene.layout.*;
 import javafx.stage.*;
 import javafx.geometry.*;
-
+import java.util.*;
 import java.net.*;
 import java.io.*;
 
 /**
- * TCPClient - simple tcp client program
- * together with TCPServer only does connect - not even complete disconnect.
- * @author  D. Patric
- * @version 2205
+ * TCPClient - A client to take in patient data via user input, and send to the server for formatting.
+ * @author Evan, Michael, Olive
+ * @date 12/5/2021
  */
 
 public class TCPClient extends Application implements EventHandler<ActionEvent> {
@@ -30,6 +29,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    
    //send button
    private Button btnSend = new Button("Send Patient Info");
+   private Button btnAdd = new Button("Add Patient");
    
    // Components - BOTTOM
    private Label lblLog = new Label("Log:");
@@ -57,19 +57,24 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    //weight
    private Label lblWeight = new Label("Weight:");
    private TextField tfWeight = new TextField();
+   //days stayed
+   private Label lblDays = new Label("Days Stayed:");
+   private TextField tfDays = new TextField();
+
+   
    
    //reason for stay
    private Label lblReason = new Label("Reason for stay:");
-   private RadioButton reason1 = new RadioButton("Reason 1");
-   private RadioButton reason2 = new RadioButton("Reason 2");
-   private RadioButton reason3 = new RadioButton("Reason 3");
-   private RadioButton reason4 = new RadioButton("Reason 4");
-   private RadioButton reason5 = new RadioButton("Reason 5");
-   private RadioButton reason6 = new RadioButton("Reason 6");
-   private RadioButton reason7 = new RadioButton("Reason 7");
-   private RadioButton reason8 = new RadioButton("Reason 8");
-   private RadioButton reason9 = new RadioButton("Reason 9");
-   private RadioButton reason10 = new RadioButton("Reason 10");
+   private RadioButton reason1 = new RadioButton("Sprained Ankle");
+   private RadioButton reason2 = new RadioButton("Broken Leg");
+   private RadioButton reason3 = new RadioButton("Broken Arm");
+   private RadioButton reason4 = new RadioButton("Fractured Hip");
+   private RadioButton reason5 = new RadioButton("Blood Test");
+   private RadioButton reason6 = new RadioButton("X-Ray");
+   private RadioButton reason7 = new RadioButton("CT Scan");
+   private RadioButton reason8 = new RadioButton("Brain Surgery");
+   private RadioButton reason9 = new RadioButton("Back Surgery");
+   private RadioButton reason10 = new RadioButton("Stitches");
    
    //insurance y/n?
    private Label lblInsurance = new Label("Does patient have insurance?");
@@ -79,6 +84,13 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    // networking attributes
    public static final int SERVER_PORT = 32001;
    private Socket socket = null;
+   
+   // arraylist for patients
+   private ArrayList<Patient> list = new ArrayList<Patient>();
+   
+   // cost attributes
+   private double total;
+   private String reason;
     
    /**
     * main program 
@@ -93,9 +105,10 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
    public void start(Stage _stage) {
       stage = _stage;
       stage.setTitle("TCP Client");
-      stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-         public void handle(WindowEvent evt) { System.exit(0); }
-      });
+      stage.setOnCloseRequest(
+         new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent evt) { System.exit(0); }
+         });
       stage.setResizable(false);
       root = new VBox(8);
       
@@ -103,7 +116,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       FlowPane fpTop = new FlowPane(8,8);
       fpTop.setAlignment(Pos.CENTER);
       fpTop.getChildren().addAll(new Label("Server Name or IP: "),
-         tfServerIP, btnConnect);
+         tfServerIP, btnConnect,btnAdd,btnSend);
       root.getChildren().add(fpTop);
       
       // BOTTOM - Label + text area
@@ -130,7 +143,7 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       infoSection.addRow(3,dobBox);
       //patient height and weight
       HBox hwBox = new HBox(8);
-      hwBox.getChildren().addAll(lblHeight, tfHeight, lblWeight, tfWeight);
+      hwBox.getChildren().addAll(lblHeight, tfHeight, lblWeight, tfWeight, lblDays, tfDays);
       infoSection.addRow(4, hwBox);
       //patient reason for stay
       VBox reasonBox = new VBox(8);
@@ -146,11 +159,13 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       
       // Listen for the button
       btnConnect.setOnAction(this);
-
+      btnSend.setOnAction(this);
+      btnAdd.setOnAction(this);
+   
       // Show window
-      scene = new Scene(root, 700, 650);
+      scene = new Scene(root, 650, 700);
       stage.setScene(scene);
-      stage.show();      
+      stage.show();    
    }
    
    /**
@@ -165,6 +180,13 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
          case "Disconnect":
             doDisconnect();
             break;
+         case "Send Patient Info":
+            sendPatient();
+            break;
+         case "Add Patient":
+            addPatient();
+            break;
+      
       }
    }
    
@@ -197,4 +219,175 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       taLog.appendText("Disconnected!\n");
       btnConnect.setText("Connect");
    }
+   
+   //sends the patient information from client program to server, but first asks user 
+   //to confirm to send
+   private void sendPatient()
+   {    
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.setContentText("Are you sure you want to send all the patient info?\nYou will not be able to send anymore patient info.");
+   
+      Optional<ButtonType> result = alert.showAndWait();
+      ButtonType button = result.orElse(ButtonType.CANCEL);
+   
+      if (button == ButtonType.OK) {  
+          
+         try 
+         {
+            ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());        
+         
+            ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());        
+         
+            outputStream.writeObject(list);
+            taLog.appendText("\nPatient data sent.");
+            outputStream.flush();
+         
+            socket.close();
+         
+         }
+         catch(IOException ioe) {
+            taLog.appendText("IO Exception: " + ioe + "\n");
+         
+         }
+         btnSend.setDisable(true);
+      } else {}
+   }
+   
+   //creates a new patient object but first prompts the user to confirm 
+   //that the information is correct
+   //if the patient had insurance a 10% reduction was applied to the cost
+   //after the patient object is created it is added to an array list
+   //all the input fields are cleared
+   public void addPatient()
+   {
+      // attribute formatting
+      int days = Integer.parseInt(tfDays.getText());
+      String dob = tfDOBmonth.getText() + "/" + tfDOBday.getText() + "/" + tfDOByear.getText();
+      
+      Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
+         Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfWeight.getText()), reason, days, total, false);
+   
+      p.setCost(calcCosts());
+      p.setReason(reason);
+      if(radioY.isSelected())
+      {
+         p.setCost(p.getCost() * .9);
+         p.setInsurance(true);
+      }
+      
+      Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+      alert.setContentText("Are you sure you want to add this patient?");
+   
+      Optional<ButtonType> result = alert.showAndWait();
+      ButtonType button = result.orElse(ButtonType.CANCEL);
+   
+      if (button == ButtonType.OK) {
+      
+         list.add(p);
+      
+         tfFname.setText("");
+         tfLname.setText("");
+         tfAge.setText("");
+         tfDOBmonth.setText("");
+         tfDOBday.setText("");
+         tfDOByear.setText("");
+         tfHeight.setText("");
+         tfWeight.setText("");
+         tfDays.setText("");
+         total = 0.0;
+         reason1.setSelected(false);
+         reason2.setSelected(false);
+         reason3.setSelected(false);
+         reason4.setSelected(false);
+         reason5.setSelected(false);
+         reason6.setSelected(false);
+         reason7.setSelected(false);
+         reason8.setSelected(false);
+         reason9.setSelected(false);
+         reason10.setSelected(false);
+         radioY.setSelected(false);
+         radioN.setSelected(false);
+      } else {}
+   }
+   
+   //calculates the cost of the hospital stay 
+   //cost is determined by reason of stay * number of days spent at the hospital 
+   public double calcCosts()
+   {
+      // Ankle Sprain
+      if(reason1.isSelected())
+      {
+         total += 500.0;
+         reason = "Sprained Ankle";
+      }
+      
+      // Broken Leg
+      if(reason2.isSelected())
+      {
+         total += 2500.0;
+         reason = "Broken Leg";
+      
+      }
+      
+      // Broken Arm
+      if(reason3.isSelected())
+      {
+         total += 2500.0;
+         reason = "Broken Arm";
+      }
+      
+      // Hip Fracture
+      if(reason4.isSelected())
+      {
+         total += 25000.0;
+         reason = "Fractured Hip";
+      }
+      
+      // Blood Test
+      if(reason5.isSelected())
+      {
+         total += 1500.0;
+         reason = "Blood Test";
+      }
+      
+      // X-Ray
+      if(reason6.isSelected())
+      {
+         total += 300.0;
+         reason = "X-Ray";
+      }
+      
+      // CT-Scan
+      if(reason7.isSelected())
+      {
+         total += 500.0;
+         reason = "CT-Scan";
+      }
+      
+      // Brain Surgery
+      if(reason8.isSelected())
+      {
+         total += 100000.0;
+         reason = "Brain Surgery";
+      }
+      
+      // Back Surgery
+      if(reason9.isSelected())
+      {
+         total += 70000.0;
+         reason = "Back Surgery";
+      }
+      
+      // Stitches
+      if(reason10.isSelected())
+      {
+         total += 1500.0;
+         reason = "Stitches";
+      }
+      double dayscost = Integer.parseInt(tfDays.getText()) * 2500;
+      total += dayscost;
+      return total;
+   
+   }
+
 }
