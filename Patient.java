@@ -144,7 +144,9 @@ public class Patient implements Serializable, Comparable<Patient>
    // toString
    public String toString() 
    {
-      return (lastName + ", " + firstName + "   " + dateOfBirth + "   " + reason + "   " + cost);
+      
+      return String.format("%-20s %-20s %-20s %-20s %-20s", lastName,firstName,dateOfBirth,reason ,String.format("$%.2f",cost));
+
    }
 
 
@@ -153,4 +155,3 @@ public class Patient implements Serializable, Comparable<Patient>
       return this.getLastName().compareTo(p.getLastName());
    }
 }
-
