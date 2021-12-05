@@ -12,10 +12,9 @@ import java.net.*;
 import java.io.*;
 
 /**
- * TCPClient - simple tcp client program
- * together with TCPServer only does connect - not even complete disconnect.
- * @author  D. Patric
- * @version 2205
+ * TCPClient - A client to take in patient data via user input, and send to the server for formatting.
+ * @author Evan, Michael, Olive
+ * @date 12/5/2021
  */
 
 public class TCPClient extends Application implements EventHandler<ActionEvent> {
