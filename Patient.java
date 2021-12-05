@@ -1,5 +1,12 @@
 import java.io.Serializable;
-public class Patient implements Serializable
+
+/**
+ * Patient - A class for the Patient object
+ * @author Evan, Michael, Olive
+ * @date 12/5/2021
+ */
+ 
+public class Patient implements Serializable, Comparable<Patient>
 {
    // attributes
    private static final long serialVersionUID = 01L;
@@ -14,13 +21,13 @@ public class Patient implements Serializable
    private double weight;
    
    private String reason;
-   private double cost;
+   private int daysStayed;
    private boolean insurance;
-   // add insurance attribute later later
+   private double cost;
    
    
    // Constructor
-   public Patient(String f, String l, String d, int a, double h, double w, String r, double c)
+   public Patient(String f, String l, String d, int a, double h, double w, String r, int ds, double c, boolean i)
    {
       firstName = f;
       lastName = l;
@@ -30,6 +37,8 @@ public class Patient implements Serializable
       weight = w;
       reason = r;
       cost = c;
+      daysStayed = ds;
+      insurance = i;
    }
    
    
@@ -74,6 +83,16 @@ public class Patient implements Serializable
       return cost;
    }
    
+   public int getDays()
+   {
+      return daysStayed;
+   } 
+   
+   public boolean getInsurance()
+   {
+      return insurance;
+   }
+
    
    // Mutators
    public void setFirstName(String x)
@@ -120,7 +139,22 @@ public class Patient implements Serializable
    {
       insurance = x;
    }
+   
+   public void setDays(int x)
+   {
+      daysStayed = x;
+   }
+   
+   
+   // toString
+   public String toString() 
+   {     
+      return String.format("%-20s %-20s %-20s %-20s %-20s", lastName,firstName,dateOfBirth,reason ,String.format("$%.2f",cost));
+   }
+   
 
-
-
+   @Override
+   public int compareTo(Patient p) {
+      return this.getLastName().compareTo(p.getLastName());
+   }
 }
