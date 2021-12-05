@@ -1,4 +1,11 @@
 import java.io.Serializable;
+
+/**
+ * Patient - A class for the Patient object
+ * @author Evan, Michael, Olive
+ * @date 12/5/2021
+ */
+
 public class Patient implements Serializable, Comparable<Patient>
 {
    // attributes
