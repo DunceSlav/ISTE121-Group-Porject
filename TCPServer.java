@@ -46,7 +46,7 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
     * main program
     */
    public static void main(String[] args) {
-
+   
       launch(args);
    }
    
@@ -92,7 +92,7 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
    public void handle(ActionEvent ae) {
       String label = ((Button)ae.getSource()).getText();
       switch(label) {
- 
+      
          case "Format":
             doFormat();
             break;
@@ -128,7 +128,6 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
       // No real processing yet
       taLog.appendText("Client connected!\n");
       
-      
       try
       {
          OutputStream outputStream = cSocket.getOutputStream();
@@ -143,7 +142,7 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
          for(Patient p: patientList)
          {       
             tree_map.put(p.getLastName(), p);
-            taLog.appendText("Patient Received: " + p.toString());
+            taLog.appendText("Patient Received: " + p.toString() + "\n");
          }    
         
       }
@@ -156,45 +155,36 @@ public class TCPServer extends Application implements EventHandler<ActionEvent>
 
    public void doFormat()
    {
-      String str = "";
-      if(!taLog.getText().isBlank() && !patientList.isEmpty())
-         str+="Info received!\n\n";
-
-      Collections.sort(patientList);
-      for(Patient p: patientList)
+      try
       {
-         str+="Patient Received: "+p.toString()+"\n";
-      }
-      taLog.setText(str);
-      storeInFile(str);
-      encriptToFile();
-   
-   }
-   private void storeInFile(String str){
-      System.out.println("Storing method");
-      System.out.println(str);
-      try {
-         FileWriter fileWriter = new FileWriter(new File("src/main/resources/store.txt"));
-         fileWriter.write(str);
-         System.out.println("Writing");
-         fileWriter.close();
-      } catch (IOException e) {
-         System.out.println("Store file not found: "+e.getMessage());
-      }
-   }
-   private void encriptToFile(){
-      FileOutputStream fileOut = null;
-      try {
-         fileOut = new FileOutputStream("src/main/resources/enStore.txt");
-
-         ObjectOutputStream objectOut = new ObjectOutputStream(fileOut);
-         for (Patient p: patientList){
-            objectOut.writeObject(p);
+         FileWriter fw = new FileWriter(new File("record.txt"));
+         System.out.println("FW made");
+         
+         // Write the formatted header
+         
+         String header = String.format("%-20s %-20s %-20s %-20s %-20s", "Last Name","First Name","Birthday","Reason for Stay" ,"Total Cost");
+         String lines = "----------------------------------------------------------------------------------------------";
+         fw.write(header + "\n" + lines);
+         
+         // Write the formatted patient info
+         for(Map.Entry<String, Patient> entry : tree_map.entrySet())
+         {
+            fw.write("\n"+ entry.getValue().toString());
+            System.out.println("Sending");
          }
-         objectOut.close();
-
-      } catch (IOException e) {
-         e.printStackTrace();
+         
+         System.out.println("Sent");
+         fw.close();
+         
       }
+      
+      catch (IOException e) 
+      {
+         Alert alert = new Alert(AlertType.INFORMATION);
+         alert.setContentText("ERROR: " + e);
+      }
+   
+
    }
+
 }
