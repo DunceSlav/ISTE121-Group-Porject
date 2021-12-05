@@ -12,9 +12,9 @@ import java.net.*;
 import java.io.*;
 
 /**
- * CPServer - stub of a TCP Server which goes with TCP Client (connect only)
- * @author  D. Patric
- * @version 2205
+ * TCPServer - A server to obtain, sort, and format patient data.
+ * @author Evan, Michael, Olive
+ * @date 12/5/2021
  */
 
 public class TCPServer extends Application implements EventHandler<ActionEvent> 
