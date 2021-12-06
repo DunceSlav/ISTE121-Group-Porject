@@ -267,11 +267,14 @@ public class TCPClient extends Application implements EventHandler<ActionEvent> 
       Patient p = new Patient(tfFname.getText(), tfLname.getText(), dob, Integer.parseInt(tfAge.getText()), 
          Double.parseDouble(tfHeight.getText()),Double.parseDouble(tfWeight.getText()), reason, days, total, false);
    
+      // Cost calculations
       p.setCost(calcCosts());
       p.setReason(reason);
+      
+      // Insurance deduction 
       if(radioY.isSelected())
       {
-         p.setCost(p.getCost() * .9);
+         p.setCost(p.getCost() * .1);
          p.setInsurance(true);
       }
       
